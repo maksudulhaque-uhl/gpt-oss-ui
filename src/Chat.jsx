@@ -17,7 +17,7 @@ const Chat = () => {
       setInput("");
 
       // TODO: Replace with your actual backend endpoint
-      const apiEndpoint = "http://localhost:1234/v1/chat/completions"; // Example for LM Studio
+      const apiEndpoint = "http://172.16.0.165:1234"; // Example for LM Studio
 
       try {
         const response = await fetch(apiEndpoint, {
