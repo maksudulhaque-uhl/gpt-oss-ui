@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 
 const Chat = () => {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    { text: "Hello! I'm an AI assistant. How can I help you today?", sender: 'bot' },
+  ]);
   const [input, setInput] = useState('');
 
   const handleSend = async () => {
@@ -52,42 +54,49 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-100px)] bg-gray-100 dark:bg-gray-900">
-      <div className="flex-grow p-4 overflow-y-auto">
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`flex ${
-              message.sender === 'user' ? 'justify-end' : 'justify-start'
-            }`}
-          >
+    <div className="flex flex-col h-full max-w-4xl mx-auto">
+      <div className="flex-grow p-6 overflow-y-auto">
+        <div className="space-y-6">
+          {messages.map((message, index) => (
             <div
-              className={`px-4 py-2 my-2 rounded-lg ${
-                message.sender === 'user'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-300 dark:bg-gray-700 text-black dark:text-white'
+              key={index}
+              className={`flex items-start gap-4 ${
+                message.sender === 'user' ? 'justify-end' : ''
               }`}
             >
-              {message.text}
+              {message.sender === 'bot' && (
+                <div className="w-8 h-8 bg-blue-500 rounded-full" />
+              )}
+              <div
+                className={`max-w-lg px-4 py-3 rounded-2xl ${
+                  message.sender === 'user'
+                    ? 'bg-blue-500 text-white rounded-br-none'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-bl-none'
+                }`}
+              >
+                <p>{message.text}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-      <div className="flex p-4 bg-white dark:bg-gray-800">
-        <input
-          type="text"
-          placeholder="Type your message..."
-          className="w-full px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-        />
-        <button
-          onClick={handleSend}
-          className="px-4 py-2 font-bold text-white bg-blue-500 rounded-r-lg hover:bg-blue-700"
-        >
-          Send
-        </button>
+      <div className="p-4 bg-white border-t dark:bg-gray-800 dark:border-gray-700">
+        <div className="flex items-center">
+          <input
+            type="text"
+            placeholder="Type your message..."
+            className="w-full px-4 py-2 bg-gray-100 border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+          />
+          <button
+            onClick={handleSend}
+            className="ml-4 px-6 py-2 font-semibold text-white bg-blue-500 rounded-full hover:bg-blue-600 focus:outline-none"
+          >
+            Send
+          </button>
+        </div>
       </div>
     </div>
   );
