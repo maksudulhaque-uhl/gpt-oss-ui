@@ -5,7 +5,7 @@ import { ThemeProvider } from "./ThemeContext";
 function App() {
   return (
     <ThemeProvider>
-      <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="flex flex-col bg-gray-100 dark:bg-gray-900">
         <Header />
         <main className="grow">
           <Chat />

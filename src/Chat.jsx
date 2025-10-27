@@ -30,7 +30,8 @@ const Chat = () => {
       ];
 
       const payload = {
-        model: "openai/gpt-oss-120b",
+        model: "openai/gpt-oss-20b",
+        // model: "openai/gpt-oss-120b",
         messages: conversation,
         temperature: 0.7,
         max_tokens: -1,
