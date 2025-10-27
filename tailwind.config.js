@@ -8,7 +8,23 @@ export default {
   ],
   darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: '#3B82F6',
+        yellow: { 500: '#FBBF24' },
+        gray: {
+          100: '#F7F7F7',
+          200: '#EBEBEB',
+          300: '#DCDCDC',
+          400: '#C4C4C4',
+          500: '#A9A9A9',
+          600: '#8E8E8E',
+          700: '#737373',
+          800: '#585858',
+          900: '#3D3D3D',
+        },
+      },
+    },
   },
   plugins: [
     plugin(function({ addBase, theme }) {
@@ -22,20 +38,20 @@ export default {
           color: theme('colors.gray.100'),
         },
         '::-webkit-scrollbar': {
-          width: '8px',
+          width: '6px',
         },
         '::-webkit-scrollbar-track': {
-          backgroundColor: theme('colors.gray.200'),
+          backgroundColor: theme('colors.gray.100'),
         },
         '.dark ::-webkit-scrollbar-track': {
-          backgroundColor: theme('colors.gray.800'),
+          backgroundColor: theme('colors.gray.900'),
         },
         '::-webkit-scrollbar-thumb': {
-          backgroundColor: theme('colors.gray.400'),
+          backgroundColor: theme('colors.gray.300'),
           borderRadius: '9999px',
         },
         '.dark ::-webkit-scrollbar-thumb': {
-          backgroundColor: theme('colors.gray.600'),
+          backgroundColor: theme('colors.gray.700'),
         },
       })
     })
