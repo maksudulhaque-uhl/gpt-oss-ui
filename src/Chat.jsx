@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { tomorrow as codeStyle } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -32,7 +35,6 @@ const Chat = () => {
 
       const payload = {
         model: "openai/gpt-oss-20b",
-        // model: "openai/gpt-oss-120b",
         messages: conversation,
         temperature: 0.7,
         max_tokens: -1,
@@ -47,7 +49,6 @@ const Chat = () => {
 
       if (!response.ok) {
         const errText = await response.text();
-        console.error("Error response:", errText);
         throw new Error(`HTTP ${response.status}: ${errText}`);
       }
 
@@ -97,7 +98,35 @@ const Chat = () => {
                   : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white rounded-bl-none"
               }`}
             >
-              <p className="whitespace-pre-wrap">{message.text}</p>
+              {message.sender === "bot" ? (
+                <ReactMarkdown
+                  children={message.text}
+                  components={{
+                    code({ inline, className, children, ...props }) {
+                      const match = /language-(\w+)/.exec(className || "");
+                      return !inline && match ? (
+                        <SyntaxHighlighter
+                          style={codeStyle}
+                          language={match[1]}
+                          PreTag="div"
+                          {...props}
+                        >
+                          {String(children).replace(/\n$/, "")}
+                        </SyntaxHighlighter>
+                      ) : (
+                        <code
+                          className="bg-gray-200 dark:bg-gray-700 px-1 rounded"
+                          {...props}
+                        >
+                          {children}
+                        </code>
+                      );
+                    },
+                  }}
+                />
+              ) : (
+                <p className="whitespace-pre-wrap">{message.text}</p>
+              )}
             </div>
           </div>
         ))}
