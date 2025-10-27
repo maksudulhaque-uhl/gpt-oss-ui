@@ -147,7 +147,7 @@ const Chat = () => {
         <div ref={messagesEndRef} /> {/* dummy div to scroll to */}
       </div>
 
-      <div className="p-4 bg-white border-t dark:bg-gray-800 dark:border-gray-700">
+      <div className="p-4 bg-white border-t dark:bg-gray-800 dark:border-gray-700 rounded-lg">
         <div className="flex items-center">
           <TextareaAutosize
             minRows={1}
