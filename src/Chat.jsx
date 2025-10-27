@@ -2,58 +2,69 @@ import React, { useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
 const Chat = () => {
-  const [messages, setMessages] = useState([
-    {
-      text: "Hello! I'm an AI assistant. How can I help you today?",
-      sender: "bot",
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const apiEndpoint = "http://172.16.0.165:1234/v1/chat/completions";
 
   const handleSend = async () => {
-    if (input.trim()) {
-      const userMessage = { text: input, sender: "user" };
-      setMessages([...messages, userMessage]);
-      setInput("");
+    if (!input.trim() || loading) return;
 
-      // TODO: Replace with your actual backend endpoint
-      const apiEndpoint = "http://172.16.0.165:1234"; // Example for LM Studio
+    const userMessage = { text: input, sender: "user" };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setLoading(true);
 
-      try {
-        const response = await fetch(apiEndpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          // TODO: Adjust the body to match your backend's expected format
-          body: JSON.stringify({
-            messages: [{ role: "user", content: input }],
-            temperature: 0.7,
-            max_tokens: -1,
-            stream: false,
-          }),
-        });
+    try {
+      const conversation = [
+        {
+          role: "system",
+          content: "Always answer in rhymes. Today is Thursday",
+        },
+        ...messages.map((m) => ({
+          role: m.sender === "user" ? "user" : "assistant",
+          content: m.text,
+        })),
+        { role: "user", content: input },
+      ];
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+      const payload = {
+        model: "openai/gpt-oss-120b",
+        messages: conversation,
+        temperature: 0.7,
+        max_tokens: -1,
+        stream: false,
+      };
 
-        const data = await response.json();
+      const response = await fetch(apiEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-        // TODO: Adjust how you extract the bot's response based on your backend's output
-        const botResponse = data.choices[0].message.content;
-
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { text: botResponse, sender: "bot" },
-        ]);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { text: "Error: Could not connect to the bot.", sender: "bot" },
-        ]);
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error("Error response:", errText);
+        throw new Error(`HTTP ${response.status}: ${errText}`);
       }
+
+      const data = await response.json();
+      const botResponse =
+        data?.choices?.[0]?.message?.content || "⚠️ No response received.";
+
+      setMessages((prev) => [...prev, { text: botResponse, sender: "bot" }]);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: "⚠️ Error: Could not connect to LM Studio API.",
+          sender: "bot",
+        },
+      ]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,47 +77,57 @@ const Chat = () => {
 
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto">
-      <div className="grow p-6 overflow-y-auto">
-        <div className="space-y-6">
-          {messages.map((message, index) => (
+      <div className="grow p-6 overflow-y-auto space-y-6">
+        {messages.map((message, index) => (
+          <div
+            key={index}
+            className={`flex items-start gap-4 ${
+              message.sender === "user" ? "justify-end" : ""
+            }`}
+          >
+            {message.sender === "bot" && (
+              <div className="w-8 h-8 bg-transparent border-2 border-green-600 rounded-full" />
+            )}
             <div
-              key={index}
-              className={`flex items-start gap-4 ${
-                message.sender === "user" ? "justify-end" : ""
+              className={`max-w-lg px-4 py-3 rounded-2xl ${
+                message.sender === "user"
+                  ? "bg-green-600 text-white rounded-br-none"
+                  : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white rounded-bl-none"
               }`}
             >
-              {message.sender === "bot" && (
-                <div className="w-8 h-8 bg-transparent border-2 border-primary rounded-full" />
-              )}
-              <div
-                className={`max-w-lg px-4 py-3 rounded-2xl ${
-                  message.sender === "user"
-                    ? "bg-orange-500 text-white rounded-br-none"
-                    : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white rounded-bl-none"
-                }`}
-              >
-                <p className="whitespace-pre-wrap">{message.text}</p>
-              </div>
+              <p className="whitespace-pre-wrap">{message.text}</p>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
+
+        {loading && (
+          <div className="text-gray-500 italic text-sm">
+            🤔 AI is thinking...
+          </div>
+        )}
       </div>
+
       <div className="p-4 bg-white border-t dark:bg-gray-800 dark:border-gray-700">
         <div className="flex items-center">
           <TextareaAutosize
             minRows={1}
             maxRows={5}
             placeholder="Type your message..."
-            className="w-full px-4 py-2 bg-white border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            className="w-full px-4 py-2 bg-white border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-green-600 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
           />
           <button
             onClick={handleSend}
-            className="ml-4 px-6 py-2 font-semibold text-white bg-primary rounded-full hover:bg-primary/90 focus:outline-none transition-colors duration-200 bg-green-600"
+            disabled={loading}
+            className={`ml-4 px-6 py-2 font-semibold text-white rounded-full focus:outline-none transition-colors duration-200 ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700"
+            }`}
           >
-            Send
+            {loading ? "Sending..." : "Send"}
           </button>
         </div>
       </div>
