@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -8,8 +8,17 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef(null); // ref to scroll to
 
   const apiEndpoint = "http://172.16.0.165:1234/v1/chat/completions";
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]); // scroll every time messages change
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
@@ -92,7 +101,7 @@ const Chat = () => {
               <div className="w-8 h-8 bg-transparent border-2 border-green-600 rounded-full" />
             )}
             <div
-              className={`max-w-lg px-4 py-3 rounded-2xl ${
+              className={`max-w-[700px] px-4 py-3 rounded-2xl ${
                 message.sender === "user"
                   ? "bg-green-600 text-white rounded-br-none"
                   : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white rounded-bl-none"
@@ -130,12 +139,12 @@ const Chat = () => {
             </div>
           </div>
         ))}
-
         {loading && (
           <div className="text-gray-500 italic text-sm">
             🤔 AI is thinking...
           </div>
         )}
+        <div ref={messagesEndRef} /> {/* dummy div to scroll to */}
       </div>
 
       <div className="p-4 bg-white border-t dark:bg-gray-800 dark:border-gray-700">
