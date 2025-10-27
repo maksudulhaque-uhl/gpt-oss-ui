@@ -130,7 +130,7 @@ const Chat = () => {
         }
 
         const codeContent = codeLines.join("\n");
-        const blockId = `code-${elements.length}`;
+        const blockId = `code-${elements.length}-${Date.now()}`;
 
         elements.push({
           type: "code",
