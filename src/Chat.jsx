@@ -20,7 +20,8 @@ const Chat = () => {
       const conversation = [
         {
           role: "system",
-          content: "Always answer in rhymes. Today is Thursday",
+          content:
+            "You are a helpful coding assistant. Always provide clear and concise answers with code examples when appropriate.",
         },
         ...messages.map((m) => ({
           role: m.sender === "user" ? "user" : "assistant",
