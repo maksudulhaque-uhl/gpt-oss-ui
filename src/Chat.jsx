@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import TextareaAutosize from 'react-textarea-autosize';
 
 const Chat = () => {
   const [messages, setMessages] = useState([
@@ -53,6 +54,13 @@ const Chat = () => {
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto">
       <div className="flex-grow p-6 overflow-y-auto">
@@ -74,7 +82,7 @@ const Chat = () => {
                     : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-bl-none'
                 }`}
               >
-                <p>{message.text}</p>
+                <p className="whitespace-pre-wrap">{message.text}</p>
               </div>
             </div>
           ))}
@@ -82,13 +90,14 @@ const Chat = () => {
       </div>
       <div className="p-4 bg-white border-t dark:bg-gray-800 dark:border-gray-700">
         <div className="flex items-center">
-          <input
-            type="text"
+          <TextareaAutosize
+            minRows={1}
+            maxRows={5}
             placeholder="Type your message..."
-            className="w-full px-4 py-2 bg-gray-100 border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            className="w-full px-4 py-2 bg-gray-100 border-transparent rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+            onKeyPress={handleKeyPress}
           />
           <button
             onClick={handleSend}
